@@ -1,11 +1,26 @@
 {
   "permissions": {
     "allow": [
-      "Bash(docker)",
+      "Bash(docker:*)",
       "Bash(gh:*)",
-      "Bash(grep)",
-      "Bash(rg)",
-      "Bash(npm)"
+      "Bash(grep:*)",
+      "Bash(rg:*)",
+      "Bash(npm:*)",
+      "Bash(gemini:*)"
     ]
-  }
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "WebSearch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"decision\":\"block\",\"reason\":\"ALWAYS use `gemini -p \\\"WebSearch: ...\\\"` command instead of WebSearch\",\"continue\":true,\"suppressOutput\":true}'"
+          }
+        ]
+      }
+    ]
+  },
+  "model": "sonnet"
 }
