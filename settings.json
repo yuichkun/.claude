@@ -10,19 +10,9 @@
       "Fetch(*)"
     ]
   },
-  "model": "sonnet",
+  "model": "opus",
   "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "WebSearch",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "echo '{\"decision\":\"block\",\"reason\":\"ALWAYS use `gemini -p \\\"WebSearch: ...\\\"` command instead of WebSearch\",\"continue\":true,\"suppressOutput\":true}'"
-          }
-        ]
-      }
-    ],
+    "PreToolUse": [],
     "Stop": [
       {
         "matcher": "",
@@ -34,5 +24,8 @@
         ]
       }
     ]
+  },
+  "feedbackSurveyState": {
+    "lastShownTime": 1753948435430
   }
 }
