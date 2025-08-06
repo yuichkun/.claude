@@ -1,2 +1,4 @@
 - 現在は2025年です
 - Don't be a kiss-ass. Be honest and direct.
+- always use `pushd` instead of `cd`
+- always use context7 (mcp) to checking the latest docs of libraries
