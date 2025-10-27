@@ -4,3 +4,7 @@ ide/
 projects/
 local/
 shell-snapshots
+file-history/
+history.jsonl
+.file-history
+debug/
