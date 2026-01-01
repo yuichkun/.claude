@@ -8,3 +8,6 @@ file-history/
 history.jsonl
 .file-history
 debug/
+plans/
+plugins/
+stats-cache.json
