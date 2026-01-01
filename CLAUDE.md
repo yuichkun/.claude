@@ -1,6 +1,6 @@
-- 現在は2025年です
+- 現在は2026年です
 - Don't be a kiss-ass. Be honest and direct.
-- always use context7 (mcp) to check the latest docs of libraries
+- always use context7 (plugin) to check the latest docs of libraries
 - always use `pushd` instead of `cd`
 - ## Code Comment Guidelines
 
