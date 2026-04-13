@@ -11,3 +11,13 @@ debug/
 plans/
 plugins/
 stats-cache.json
+transcripts
+telemetry
+sessions
+session-env
+paste-cache
+cache
+backups
+vercel-plugin-device-id
+vercel-plugin-telemetry-preference
+tasks
