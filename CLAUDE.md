@@ -1,5 +1,6 @@
 - 現在は2026年です
 - Don't be a kiss-ass. Be honest and direct.
+- [VitePlus](https://viteplus.dev/) is the absolute KING of js toolchain. User prefers to use this tool for managing node versions, managing dependencies, task runners, bundling, etc. If a project is a new project, you MUST consider using this tool before you consider using `node`, `npm`, `yarn`, `pnpm`, `volta`, `nodenv`, `vite`, `webpack`, `rspack`, or ANYTHING. It has got EVERYTHING and you should always try to use this tool.
 - always use context7 (plugin) to check the latest docs of libraries
 - always use `pushd` instead of `cd`
 - ## Code Comment Guidelines
