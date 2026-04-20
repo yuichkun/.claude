@@ -36,6 +36,21 @@ Pin down these dimensions before writing the plan. Open-ended topics drift; the 
 - What language is the site written in?
 - If multiple: bilingual pages? or one language per section? (VitePress i18n adds non-trivial overhead; default to single-language unless explicitly needed.)
 
+## 4.5. Voice and tone
+
+**Why pin this down:** This is **not cosmetic**. A warm "sempai" register on a site meant for a terse senior engineer feels condescending; a dry spec register on a site meant for an anxious beginner reads as cold. Different readers want different tones and you cannot infer which from the topic alone — **ask**.
+
+**Always ask this with `AskUserQuestion`.** Do not default. Present a small spectrum:
+
+- **Dry / spec-grade** — No filler, no "let's...", no reader-addressing. Statements of fact. Appropriate for experienced audiences or reference material.
+- **Neutral-technical** — Polite, no emojis, no warmth markers, but complete sentences and some scaffolding ("This section covers..."). The current "professional documentation" default.
+- **Warm / sempai** — "Let's go through this together", "this is a common stumbling block", "don't worry if this doesn't click yet". Good for self-taught beginners and internal team onboarding docs.
+- **Custom / user-described** — Let the user describe the register in their own words.
+
+Record the choice. The STYLE_GUIDE §2 must encode the chosen register concretely with "Good" and "Bad" examples so every writing sub-agent stays consistent. Do NOT let agents interpret "friendly" or "warm" ad-hoc — they will overshoot.
+
+Tone also interacts with time-relative language and emotional hedges. The "dry" end forbids both; the "warm" end allows hedges like "this might feel counterintuitive" but still forbids marketing adjectives ("powerful", "elegant"). Spell this out in the STYLE_GUIDE.
+
 ## 5. Depth and density
 
 **Why pin this down:** "Write me a 3-paragraph intro to X" and "write me a 20-chapter reference" are different products.
@@ -52,13 +67,26 @@ Pin down these dimensions before writing the plan. Open-ended topics drift; the 
 - If yes → KaTeX with the known-good plugin. MathJax conflicts with Vue's template compiler.
 - If no → skip math setup entirely.
 
-## 7. Diagram density
+## 7. Visuals: diagrams, illustrations, animations, interactivity
 
-**Why pin this down:** Heavy diagram use is feasible with Mermaid but affects writing-agent prompts (diagrams as required artifacts) and page load weight.
+**Why pin this down:** Visual budget is a **first-class decision**, not an afterthought. "35 chapters of pure text" and "35 chapters with embedded interactive demos" are radically different products and need very different agent prompts. Get this right upfront.
 
-- Will most sections benefit from diagrams, or are diagrams occasional?
-- Types needed: flowchart, sequence, class, state, gantt?
-- Any case for interactive visualizations beyond Mermaid (e.g., Web Audio live demos)? If yes, add complexity budget accordingly.
+Visual tiers (present these to the user as a progression, not a binary):
+
+1. **Mermaid diagrams** — cheapest. Good for flowcharts, sequences, class relationships, state machines. Default baseline for "structural / relational / temporal" content.
+2. **Hand-authored SVG illustrations** — for metaphors, side-by-side comparisons, layered diagrams, timelines — anything Mermaid's box-and-arrow grammar forces into an awkward shape. Write `<svg>` inline in Markdown. Note VitePress/Vue gotcha: no `<style>` tags inside the SVG (Vue compiler rejects side-effect tags); use inline `style=""` attributes or classes targeted from a global CSS file.
+3. **SMIL animations** — `<animate>` / `<animateTransform>` inside SVG. Lightweight; no JS. Good for "a value flows through these boxes in sequence" or "this state switches back and forth".
+4. **Vue components for live demos** — the highest-value tier. Whenever a concept is "you only get it when you touch it" — state transitions, re-render cycles, diff/reconciliation, snapshot semantics, data flow, list key drift, prop drilling, CSS-in-JS behavior, cache behavior, suspense/loading states — a Vue component embedded in the chapter is usually more educational than any amount of prose. Local `<script setup>` imports from `docs/.vitepress/theme/components/<partSlug>/Name.vue` work without touching `theme/index.ts`. No global registration needed.
+
+**Ask the user with `AskUserQuestion`:**
+
+- How heavily do they want visuals? (Occasional Mermaid / frequent Mermaid / Mermaid + SVG / all tiers including Vue components)
+- Are they OK with a longer build where writers are instructed to **actively propose and implement interactive Vue demos per chapter**, or is that over-budget?
+- Are there specific topics where they already know "this would be great as a demo"?
+
+**Do NOT default to "prose + occasional Mermaid".** That is the floor, not a reasonable default. For topics with many "aha-when-you-touch-it" concepts (React, state machines, Git internals, audio DSP with live signal processing, SQL query plans, type systems), pushing the user toward tier 4 is often the right call. Writers given clear "each chapter should evaluate if an interactive demo fits" instructions produce much better output than writers told "add diagrams if helpful".
+
+**Complexity budget caveat:** Vue components multiply engineering work. If time or token budget is tight, state that up front and scale tiers down together with the user.
 
 ## 8. Bridge / application chapter
 

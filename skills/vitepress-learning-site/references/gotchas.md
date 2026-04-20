@@ -236,3 +236,86 @@ See `deployment.md` for platform-specific guidance.
 **Symptom**: Codex audit reports "no new issues found" — orchestrator interprets this as the audit failing.
 
 **Fix**: A clean second-round audit is success. Check that the report file exists and contains the "residual Critical / Major: 0" line before treating emptiness as a failure.
+
+---
+
+## 17. SVG text overflow goes undetected without real measurement
+
+**Symptom**: Hand-authored SVG diagrams look OK in a quick screenshot but CJK (or long English) text labels actually extend past their containing `<rect>`. Readers see text bleeding past box edges.
+
+**Why**: Writers (including LLM writers) draft SVGs with conservative-feeling widths (rect `width=160`, label `font-size=13`), then drop in a Japanese string like "Counter 関数（再呼び出し）" that takes ~14 glyphs × ~15px = 210px. The browser doesn't warn; the page still renders. The SVG bounding box logic doesn't report it either, because the text node's bbox is fine — only the text's right edge exceeds its conceptual parent rect.
+
+**Fix**: During Phase 7 browser verification, run a DOM measurement that cross-checks each text node against its presumed container rect:
+
+```js
+// Pseudocode — adapt to your browser MCP
+for (const svg of document.querySelectorAll('.vp-doc svg')) {
+  const rects = [...svg.querySelectorAll('rect')];
+  const texts = [...svg.querySelectorAll('text')];
+  for (const r of rects) {
+    const rb = r.getBoundingClientRect();
+    for (const t of texts) {
+      const tb = t.getBoundingClientRect();
+      const tCx = (tb.left + tb.right) / 2;
+      const rCx = (rb.left + rb.right) / 2;
+      const vertInside = tb.top >= rb.top - 5 && tb.bottom <= rb.bottom + 20;
+      const horizAligned = Math.abs(tCx - rCx) < 40;
+      if (horizAligned && vertInside && (tb.right > rb.right + 1 || tb.left < rb.left - 1)) {
+        // overflow — collect for fix
+      }
+    }
+  }
+}
+```
+
+Then either widen the container `<rect>` or shorten the label. Writers should be told up front: **CJK full-width ≈ 13–15px per glyph at `font-size=13`; English ≈ 6–7px per half-width char**. Budget widths before drafting, not after.
+
+Never accept an SVG from an agent without this measurement pass. "Looks fine in screenshot" is not sufficient — the user will notice once they read the site.
+
+---
+
+## 18. Vue component global registration vs. local import — prefer local
+
+**Symptom**: Writing agents working on different Parts in parallel both want to register Vue components in `docs/.vitepress/theme/index.ts`. Merge conflicts happen inside a single session even without git.
+
+**Fix**: Use **local `<script setup>` imports** in the Markdown file itself:
+
+```markdown
+---
+title: "..."
+---
+
+<script setup>
+import MyDemo from '../.vitepress/theme/components/p3/MyDemo.vue'
+</script>
+
+# Chapter
+
+<MyDemo />
+```
+
+VitePress supports this first-class. Agents never need to touch `theme/index.ts`, so parallel writing has zero global-state contention. Instruct every writer in their prompt: "Create Vue components at `docs/.vitepress/theme/components/<partSlug>/Name.vue`; import them locally via `<script setup>` in the Markdown file; do NOT edit `theme/index.ts`."
+
+---
+
+## 19. Agent defaults to "mostly prose with occasional diagrams"
+
+**Symptom**: Writers given "add diagrams where helpful" produce 40 chapters of prose with 1 Mermaid box-and-arrow per chapter and no Vue components, even when the topic screams for interactive demos (state machines, diffs, reconciliation, etc.).
+
+**Why**: LLMs default to prose-and-diagrams because that is the modal form of technical writing in their training data. "Interactive demo" requires writing real Vue code, which is higher-effort; without explicit permission + expectation, they skip it.
+
+**Fix**: The writing-agent prompt template must **explicitly require** a 4-tier visual evaluation per chapter: Mermaid (baseline) → SVG (when Mermaid can't express) → SMIL animation → Vue component (for "touch to understand" concepts). Force the agent to report, in its completion message, which tier was chosen for each chapter and — if Tier 4 was skipped — a one-line reason. That reporting requirement alone raises Tier-4 adoption noticeably.
+
+For the orchestrator: during interview, actively push the user toward Tier 4 for topics where it fits (state, data flow, diffs, caches). Do not default to "Tier 1 only" — it is a floor, not a baseline.
+
+---
+
+## 20. Assuming the tone instead of asking
+
+**Symptom**: Writers produce either (a) dry-technical prose for a user who wanted warm-sempai, or (b) overly chatty warm-sempai prose for a user who wanted spec-grade. Both feel wrong.
+
+**Why**: The previous skill version had "neutral prose" hard-coded in the STYLE_GUIDE template. Tone was treated as a constant, not as a user-facing decision.
+
+**Fix**: Interview §2.5 (tone) is a required question with `AskUserQuestion`. Present at least three presets (dry-spec / neutral-technical / warm-sempai) plus "custom". Then the STYLE_GUIDE encodes the chosen register concretely with Good/Bad examples, so writers don't drift.
+
+If the user picks warm-sempai, cap warmth markers at 2–3 per chapter in the STYLE_GUIDE — unbounded warmth drifts into cheerleading fast.

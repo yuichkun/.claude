@@ -23,6 +23,10 @@ You are helping the user build a research-grade, multi-page VitePress learning s
 
 7. **Do not decide what you can leave to the implementer.** Package manager, task runner, deploy target, which sub-agent product to use, Node version — these are project-level choices. The skill prescribes the *workflow* and the *VitePress content contract*, not a specific toolchain.
 
+8. **Interactivity is not a luxury.** If a concept has a "you only get it when you touch it" quality (state transitions, re-render cycles, diff algorithms, data flow, snapshot semantics), a **Vue component embedded in the page** is almost always higher-value than another paragraph of prose. VitePress supports local `<script setup>` imports of `.vue` components from `docs/.vitepress/theme/components/**` — no global registration needed. Push writers to evaluate interactive demos **per chapter**, not as a one-off afterthought. SVG illustrations (including SMIL `<animate>` for simple animation) are a second-tier option when interactivity is overkill but a static Mermaid box-and-arrow underperforms.
+
+9. **Tone is a parameter, not a default.** Different readers want different registers — some want dry-technical, some want sempai-talking-you-through-it. Never assume. The interview pins this down (checklist §4.5) and the STYLE_GUIDE encodes the chosen register so writers stay consistent across chapters.
+
 ## The nine phases
 
 Work through these in order. Do not skip phases. Phases 1 → 3 happen before any file is written; Phase 7 is triggered by Phase 6 outcomes; Phase 9 is optional.
@@ -51,8 +55,10 @@ Read `references/interview-checklist.md` for the full question catalog. At minim
 - **Scope boundaries** (what's explicitly out?)
 - **Audience** (self? team? beginner? advanced?)
 - **Content language(s)** (and whether to i18n)
+- **Voice / tone** (formal-dry? neutral-technical? warm-sempai? — do NOT default to one, ask). This is NOT a cosmetic decision; getting it wrong is the difference between "this feels for me" and "this feels cold". See interview-checklist §4.5.
 - **Math rendering needed?**
 - **Diagram density** (Mermaid-heavy, or mostly prose?)
+- **Interactive / animated content** (SVG illustrations? animations? Vue components for live demos?) — for topics with "touch-to-click" moments (state machines, diffs, rendering, data flow), **actively push for interactivity**. Static figures alone leave readers unable to build intuition. See interview-checklist §7 (expanded).
 - **Bridge/application chapter?** (mapping this topic to the user's ulterior project, if any — this was the highest-value chapter in a past engagement)
 - **External audit desired?** (default: yes)
 - **Depth of research per topic** (skim vs. spec-grade)
